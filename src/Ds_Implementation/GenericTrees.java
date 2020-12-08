@@ -42,13 +42,21 @@ public class GenericTrees {
 			display(child);
 		}
 	}
-	public static int size(Node root)
-	{
-		int s =0 ;
-		for(Node child : root.children) {
-			s+=size(child);
+
+	public static int size(Node root) {
+		int s = 0;
+		for (Node child : root.children) {
+			s += size(child);
 		}
-		return s+1;
+		return s + 1;
+	}
+
+	public static int max(Node root) {
+		int max = root.data;
+		for (Node child : root.children) {
+			max = Math.max(max(child), max);
+		}
+		return max;
 	}
 
 	public static void main(String args[]) {
@@ -57,6 +65,8 @@ public class GenericTrees {
 		Node root = GenericTrees.construct(arr);
 		GenericTrees.display(root);
 		System.out.println(GenericTrees.size(root));
+
+		System.out.println(GenericTrees.max(root));
 	}
 
 }
