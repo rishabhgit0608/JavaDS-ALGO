@@ -1,95 +1,290 @@
 package pepTest;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class Pattern {
+	private static class Node {
 
-//	public static void main(String[] args) {
+		int data;
+		ArrayList<Node> children = new ArrayList<>();
+	}
 
-//		Scanner scn = new Scanner(System.in);
-//		int n = scn.nextInt();
-//		// int inc=1;
-//		int mid = 0;
-//		if (n % 2 == 0) {
-//			mid = n / 2;
-//		} else {
-//			mid = (n + 1) / 2;
-//
-//		}
-//		int inc = 1;
-//		int dec = 0;
-//		for (int i = 0; i < n; i++) {
-//
-//			if (i < mid) {
-//				for (int j = 0; j < n; j++) {
-//
-//					System.out.print(inc + " ");
-//					inc++;
-//
-//				}
-//				if (i == mid - 1 && n % 2 == 0) {
-//					dec = inc;
-//				}
-//				if (i == mid - 1 && n % 2 != 0) {
-//					dec = inc - (2 * n);
-//				}
-//				inc = (inc - 1) + n + 1;
-//
-//			} else {
-//
-//				for (int j = 0; j < n; j++) {
-//
-//					System.out.print(dec + " ");
-//					dec++;
-//
-//				}
-//				dec = (dec - 1) - (3 * n) + 1;
-//
-//			}
-//
-//			System.out.println();
-//
-//		}
-//	}
-//}
-
-	static Scanner sc = new Scanner(System.in);
-
-	public static void main(String[] args) {
-
-		int n = sc.nextInt();
-		int row = 0;
-		int values = 1;
-		int mid;
-		if (n % 2 == 0) {
-			mid = n / 2;
-		} else {
-			mid = (n + 1) / 2;
+	public static void display(Node node) {
+		String str = node.data + " -> ";
+		for (Node child : node.children) {
+			str += child.data + ", ";
 		}
-		while (row < n) {
-			int cst = 0;
-			while (cst < n) {
-				System.out.print(values + " ");
-				values += 1;
-				cst++;
+		str += ".";
+		System.out.println(str);
+
+		for (Node child : node.children) {
+			display(child);
+		}
+	}
+
+	public static Node construct(int[] arr) {
+		Node root = null;
+
+		Stack<Node> st = new Stack<>();
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[i] == -1) {
+				st.pop();
+			} else {
+				Node t = new Node();
+				t.data = arr[i];
+
+				if (st.size() > 0) {
+					st.peek().children.add(t);
+				} else {
+					root = t;
+				}
+
+				st.push(t);
+			}
+		}
+
+		return root;
+	}
+
+	public static int size(Node node) {
+		int s = 0;
+
+		for (Node child : node.children) {
+			s += size(child);
+		}
+		s += 1;
+
+		return s;
+	}
+
+	public static int max(Node node) {
+		int m = Integer.MIN_VALUE;
+
+		for (Node child : node.children) {
+			int cm = max(child);
+			m = Math.max(m, cm);
+		}
+		m = Math.max(m, node.data);
+
+		return m;
+	}
+
+	public static int height(Node node) {
+		int h = -1;
+
+		for (Node child : node.children) {
+			int ch = height(child);
+			h = Math.max(h, ch);
+		}
+		h += 1;
+
+		return h;
+	}
+
+	public static void traversals(Node node) {
+		System.out.println("Node Pre " + node.data);
+
+		for (Node child : node.children) {
+			System.out.println("Edge Pre " + node.data + "--" + child.data);
+			traversals(child);
+			System.out.println("Edge Post " + node.data + "--" + child.data);
+		}
+
+		System.out.println("Node Post " + node.data);
+	}
+
+	public static void levelOrderLinewiseZZ(Node node) {
+		Stack<Node> stack = new Stack<>();
+		stack.add(node);
+
+		Stack<Node> cstack = new Stack<>();
+		int level = 0;
+
+		while (stack.size() > 0) {
+			node = stack.pop();
+			System.out.print(node.data + " ");
+
+			if (level % 2 == 0) {
+				for (int i = 0; i < node.children.size(); i++) {
+					Node child = node.children.get(i);
+					cstack.push(child);
+				}
+			} else {
+				for (int i = node.children.size() - 1; i >= 0; i--) {
+					Node child = node.children.get(i);
+					cstack.push(child);
+				}
 			}
 
-			if (row < mid) {
-				values += n;
+			if (stack.size() == 0) {
+				stack = cstack;
+				cstack = new Stack<>();
+				level++;
+				System.out.println();
 			}
-			if (row == mid - 1 && n % 2 == 0) {
-				values = values-n;
-			}
-			if (row == mid - 1 && n % 2 != 0) {
-				values = (values) - (3 * n);
-			}
-			if (row >= mid) {
-				values = ((values - 1) - (3 * n)) + 1;
-			}
-			row++;
-			System.out.println();
+		}
+	}
+
+	public static void mirror(Node node) {
+
+		for (int i = 0; i < node.children.size() / 2; i++) {
+			Node a = node.children.get(i);
+			node.children.set(i, node.children.get(node.children.size() - i - 1));
+
+			node.children.set(node.children.size() - i - 1, a);
+		}
+
+		for (Node child : node.children) {
+			mirror(child);
+		}
+
+	}
+
+	public static void removeLeaves(Node node) {
+		boolean isLeaf = false;
+		for (Node child : node.children) {
+			isLeaf = true;
+			break;
+		}
+		if (!isLeaf) {
+			node = null;
+			return;
+		}
+		for (Node child : node.children) {
+			removeLeaves(child);
+		}
+
+	}
+
+	public static ArrayList<Integer> nodeToRootPath(Node node, int data) {
+
+		if (data == node.data) {
+			ArrayList<Integer> list = new ArrayList<>();
+			list.add(data);
+			return list;
+		}
+		ArrayList<Integer> ar = new ArrayList<Integer>();
+		for (Node child : node.children) {
+			ar = nodeToRootPath(child, data);
+			ar.add(child.data);
 
 		}
+		return ar;
+
+	}
+
+	static int ceil;
+	static int floor;
+
+	public static void ceilAndFloor(Node node, int data) {
+		if (node.data > data) {
+			if (node.data < ceil) {
+				ceil = node.data;
+			}
+		}
+
+		if (node.data < data) {
+			if (node.data > floor) {
+				floor = node.data;
+			}
+		}
+
+		for (Node child : node.children) {
+			ceilAndFloor(child, data);
+		}
+	}
+
+	public static int kthLargest(Node node, int k) {
+		int data = Integer.MIN_VALUE;
+		ceilAndFloor(node, Integer.MAX_VALUE);
+		for (int i = 0; i < k; i++) {
+			ceilAndFloor(node, data);
+			data = floor;
+			floor = Integer.MIN_VALUE;
+		}
+		return data;
+	}
+
+	public static int maximum(Node node) {
+		if (node.children.size() == 0) {
+			return node.data;
+		}
+		int sum = 0;
+		for (Node child : node.children) {
+
+			sum += maximum(child);
+
+		}
+		return sum;
+	}
+
+	public static int maximum1(Node node) {
+		if (node.children.size() == 0) {
+			return node.data;
+		}
+		int sum = 0;
+		for (Node child : node.children) {
+
+			sum += maximum1(child);
+
+		}
+		return sum;
+	}
+
+	public static class Pair {
+		Node node;
+		int state;
+
+		public Pair(Node node) {
+			this.node = node;
+			this.state = -1;
+		}
+
+	}
+
+	public static void IterativePreandPostOrder(Node node) {
+		Pair p = new Pair(node);
+		Stack<Pair> st = new Stack<>();
+		st.push(p);
+		ArrayList<Pair> postOrder = new ArrayList<Pair>();
+
+		while (!st.isEmpty()) {
+			if (!st.isEmpty() && st.peek().state == -1) {
+				System.out.print(st.peek().node.data + " ");
+				st.peek().state++;
+			} else if (!st.isEmpty() && st.peek().state != -1) {
+				if (st.peek().node.children.size() > 0 && st.peek().node.children.size() > st.peek().state) {
+					Pair newP = new Pair(st.peek().node.children.get(st.peek().state));
+					st.push(newP);
+				} else {
+					postOrder.add(st.pop());
+					if (!st.isEmpty()) {
+						st.peek().state++;
+					}
+				}
+			}
+		}
+		System.out.println();
+
+		for (int i = 0; i < postOrder.size(); i++) {
+			System.out.print(postOrder.get(i).node.data+" ");
+		}
+
+	}
+
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int n = Integer.parseInt(br.readLine());
+		int[] arr = new int[n];
+		String[] values = br.readLine().split(" ");
+		for (int i = 0; i < n; i++) {
+			arr[i] = Integer.parseInt(values[i]);
+		}
+
+		Node root = construct(arr);
+		IterativePreandPostOrder(root);
 	}
 
 }

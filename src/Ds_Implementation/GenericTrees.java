@@ -58,6 +58,14 @@ public class GenericTrees {
 		}
 		return max;
 	}
+	public static int height(Node node) {
+        int h= -1;
+        for(Node child:node.children){
+            h =Math.max(h,height(child));
+        }
+        return h+1;
+    }
+
 
 	public static void main(String args[]) {
 		int[] arr = { 10, 20, 50, -1, 60, -1, -1, 30, 70, -1, 80, -1, 90, -1, -1, 40, 100, 110, -1, 120, -1, -1, -1,

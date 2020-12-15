@@ -1,122 +1,76 @@
 package pepTest;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.util.*;
 
 public class boardpath {
 
-	public static void main(String[] args) {
-		/*
-		 * Enter your code here. Read input from STDIN. Print output to STDOUT. Your
-		 * class should be named Solution.
-		 */
-		System.out.println(getCount(0, 6, new int[5]));
-//		Scanner scn = new Scanner(System.in);
-//		int n = scn.nextInt();
-//		int a[] = new int[n];
-//		int m = scn.nextInt();
-//		System.out.println(getcount(a, m, 0));
-//
-//		System.out.println(getpath2(a, m, 0));
-//		getpath(a, m, 0, "");
-		System.out.println(getPath(new int[5], 6, 0));
-		getpath(new int[5], 6, 0, "");
-//
-//	}
-//
+	public static void main(String[] args) throws Exception {
+		Scanner sc = new Scanner(System.in);
+		String str = sc.next();
 
-//
-//	public static void getpath(int a[], int m, int r, String str) {
-//		if (r == a.length) {
-//			System.out.println(str);
-//			return;
-//		}
-//		if (r > a.length) {
-//			return;
-//		}
-//
-//		for (int i = 1; i <= m; i++) {
-//			getpath(a, m, r + i, str + i);
-//		}
-//		return;
-//	}
-//
-//	public static ArrayList<String> getpath2(int a[], int m, int r) {
-//		if (r == a.length) {
-//
-//			ArrayList<String> pq = new ArrayList<String>();
-//			pq.add("");
-//			return pq;
-//		}
-//		if (r > a.length) {
-//
-//			ArrayList<String> p = new ArrayList<String>();
-//			// p.add("");
-//			return p;
-//		}
-//		ArrayList<String> str = new ArrayList<String>();
-//		ArrayList<String> stri;
-//		for (int i = 1; i <= m; i++) {
-//			stri = getpath2(a, m, r + i);
-//
-//			for (String s : stri) {
-//				str.add(i + "" + s);
-//			}
-//		}
-//
-//		return str;
-//	}
-//}
+		Stack<Integer> st1 = new Stack<Integer>();
+		Stack<Character> st2 = new Stack<Character>();
 
-	}
+		for (int i = 0; i < str.length(); i++) {
+			char ch = str.charAt(i);
+			if (ch >= '1' && ch <= '9') {
+				st1.push(ch - '0');
+			} else {
+				if (st2.isEmpty() || prec(ch) > prec(st2.peek())) {
+					st2.push(ch);
+				} else if (ch == ')') {
+					while (!st2.isEmpty() && st2.peek() != '(') {
+						int a = st1.pop();
+						int b = st1.pop();
+						char op = st2.pop();
+						st1.add(solve(a, b, op));
+					}
+					st2.pop();
+				} else if (ch == '(') {
+					st2.push(ch);
+				} else if (!st2.isEmpty() && prec(ch) <= prec(st2.peek())) {
+					while (!st2.isEmpty() && prec(ch) <= prec(st2.peek())) {
+						int a = st1.pop();
+						int b = st1.pop();
+						char op = st2.pop();
+						st1.add(solve(a, b, op));
+					}
+					st2.push(ch);
+				}
 
-	public static int getCount(int n, int m, int[] n1) {
-		if (n1.length == n) {
-			return 1;
-		}
-		if (n > n1.length) {
-			return 0;
-		}
-		int count = 0;
-		for (int i = 1; i < m; i++) {
-			count += getCount(n + i, m, n1);
-		}
-		return count;
-
-	}
-
-	public static ArrayList<String> getPath(int[] a, int m, int r) {
-		if (r == a.length) {
-			ArrayList<String> br = new ArrayList<String>();
-			br.add("");
-			return br;
-		}
-		if (r > a.length) {
-			ArrayList<String> br = new ArrayList<String>();
-			return br;
-		}
-		ArrayList<String> arr;
-		ArrayList<String> myres = new ArrayList<String>();
-		for (int i = 1; i <= m; i++) {
-			arr = getPath(a, m, r + i);
-			for (int j = 0; j < arr.size(); j++) {
-				myres.add(i+arr.get(j));
 			}
 		}
-		return myres;
-
+		while (!st2.isEmpty()) {
+			int a = st1.pop();
+			int b = st1.pop();
+			char op = st2.pop();
+			st1.add(solve(a, b, op));
+		}
+		System.out.println(st1.pop());
 	}
 
-	public static void getpath(int[] a, int m, int r, String str) {
-		if (r == a.length) {
-			System.out.println(str);
-			return;
+	public static int prec(char ch) {
+		if (ch == '+' || ch == '-') {
+			return 1;
+		} else if (ch == '*' || ch == '/') {
+			return 2;
+		} else {
+			return 0;
 		}
-		if (r > a.length) {
-			return;
-		}
-		for (int i = 1; i <= m; i++) {
-			getpath(a, m, r + i, str + i);
+	}
+
+	public static int solve(int a, int b, char op) {
+		if (op == '+') {
+			return b + a;
+		} else if (op == '-') {
+			return b - a;
+		} else if (op == '*') {
+			return b * a;
+		} else {
+			return b / a;
 		}
 	}
 }
